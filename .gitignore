@@ -1,0 +1,38 @@
+# ---------- Java / Maven (backend) ----------
+target/
+*.class
+*.jar
+*.war
+*.log
+logs/
+hs_err_pid*
+!**/.mvn/wrapper/maven-wrapper.jar
+
+# ---------- Angular / Node (frontend) ----------
+node_modules/
+dist/
+.angular/
+coverage/
+npm-debug.log*
+
+# ---------- Editores ----------
+.idea/
+*.iml
+.vscode/*
+!.vscode/extensions.json
+nbproject/private/
+.settings/
+.project
+.classpath
+.factorypath
+
+# ---------- Secretos y configuración local ----------
+.env
+*.env
+application-local.yml
+application-local.properties
+
+# ---------- Sistema operativo ----------
+.DS_Store
+Thumbs.db
+desktop.ini
