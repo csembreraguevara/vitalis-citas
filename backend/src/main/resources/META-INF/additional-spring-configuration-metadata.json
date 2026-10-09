@@ -1,0 +1,27 @@
+{
+  "properties": [
+    {
+      "name": "app.jwt.secret",
+      "type": "java.lang.String",
+      "description": "Clave de firma del JWT en Base64 (mínimo 256 bits). Se define con la variable de entorno JWT_SECRET."
+    },
+    {
+      "name": "app.jwt.expiracion-minutos",
+      "type": "java.lang.Long",
+      "description": "Vigencia del token JWT en minutos (RF002).",
+      "defaultValue": 60
+    },
+    {
+      "name": "app.login.max-intentos",
+      "type": "java.lang.Integer",
+      "description": "Intentos fallidos consecutivos antes de bloquear la cuenta (RF002).",
+      "defaultValue": 5
+    },
+    {
+      "name": "app.login.minutos-bloqueo",
+      "type": "java.lang.Integer",
+      "description": "Minutos que la cuenta permanece bloqueada tras superar los intentos fallidos (RF002).",
+      "defaultValue": 15
+    }
+  ]
+}
