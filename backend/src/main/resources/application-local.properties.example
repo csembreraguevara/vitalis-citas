@@ -1,0 +1,12 @@
+# ---------------------------------------------------------------
+# PLANTILLA de configuración local — Vitalis Citas
+#
+# 1. Copia este archivo en la misma carpeta con el nombre:
+#       application-local.properties
+# 2. Escribe tu usuario y tu contraseña de MySQL.
+#
+# application-local.properties está en .gitignore: NUNCA se sube
+# a GitHub, así que cada integrante tiene el suyo con su clave.
+# ---------------------------------------------------------------
+spring.datasource.username=root
+spring.datasource.password=TU_CLAVE_DE_MYSQL
