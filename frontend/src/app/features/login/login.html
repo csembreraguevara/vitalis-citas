@@ -1,0 +1,70 @@
+<main class="login">
+  <section class="login__marca">
+    <div class="login__logo" aria-hidden="true">+</div>
+    <h1>Clínica Vitalis</h1>
+    <p class="login__lema">Reserva, reprograma y gestiona tus citas médicas en línea.</p>
+    <ul class="login__puntos">
+      <li>Medicina general, pediatría, ginecología y odontología</li>
+      <li>Disponibilidad de médicos en tiempo real</li>
+      <li>Recordatorios de tus citas por correo</li>
+    </ul>
+  </section>
+
+  <section class="login__panel">
+    <form class="login__form" [formGroup]="form" (ngSubmit)="ingresar()" novalidate>
+      <h2>Iniciar sesión</h2>
+      <p class="text-secondary mb-4">Ingresa con tu usuario y contraseña.</p>
+
+      @if (error(); as mensaje) {
+        <div class="alert alert-danger py-2" role="alert">{{ mensaje }}</div>
+      }
+
+      <div class="mb-3">
+        <label for="username" class="form-label">Usuario o correo</label>
+        <input
+          id="username"
+          type="text"
+          class="form-control"
+          formControlName="username"
+          autocomplete="username"
+          [class.is-invalid]="invalido('username')"
+        />
+        <div class="invalid-feedback">Ingresa tu usuario.</div>
+      </div>
+
+      <div class="mb-4">
+        <label for="password" class="form-label">Contraseña</label>
+        <div class="input-group has-validation">
+          <input
+            id="password"
+            [type]="verClave() ? 'text' : 'password'"
+            class="form-control"
+            formControlName="password"
+            autocomplete="current-password"
+            [class.is-invalid]="invalido('password')"
+          />
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            (click)="verClave.set(!verClave())"
+            [attr.aria-label]="verClave() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+          >
+            {{ verClave() ? 'Ocultar' : 'Ver' }}
+          </button>
+          <div class="invalid-feedback">Ingresa tu contraseña.</div>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-vitalis w-100" [disabled]="cargando()">
+        @if (cargando()) {
+          <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+          Ingresando…
+        } @else {
+          Ingresar
+        }
+      </button>
+
+      <p class="login__nota">Tras 5 intentos fallidos la cuenta se bloquea 15 minutos.</p>
+    </form>
+  </section>
+</main>
