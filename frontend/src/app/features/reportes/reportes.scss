@@ -1,0 +1,87 @@
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem;
+
+  .form-control {
+    width: 200px;
+  }
+}
+
+.filtros__btn {
+  padding: 0.375rem 1.25rem; // misma altura que los campos de fecha
+}
+
+.table {
+  border: 1px solid var(--bs-border-color);
+
+  thead th {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--bs-secondary-color);
+    white-space: nowrap;
+  }
+
+  th,
+  td {
+    padding: 0.6rem 0.75rem;
+  }
+}
+
+/* Botón con aspecto de texto para desplegar la especialidad */
+.desplegar {
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  background: none;
+  border: 0;
+
+  &:hover {
+    color: var(--vitalis-primario);
+  }
+}
+
+.desplegar__flecha {
+  display: inline-block;
+  width: 1rem;
+  color: var(--vitalis-primario);
+}
+
+.fila-medico td {
+  font-size: 0.9rem;
+  color: var(--bs-secondary-color);
+  background: var(--vitalis-fondo);
+}
+
+.fila-medico td:first-child {
+  padding-left: 2rem;
+  color: var(--bs-body-color);
+}
+
+.fila-medico--elegido td {
+  background: #e6f2f1;
+}
+
+.btn-link {
+  color: var(--vitalis-primario);
+}
+
+.detalle {
+  border-left: 4px solid var(--vitalis-primario);
+  scroll-margin-top: 1rem;
+
+  .table {
+    border: 0;
+  }
+}
+
+.vacio {
+  padding: 2rem 1.5rem;
+  text-align: center;
+  color: var(--bs-secondary-color);
+  background: #fff;
+  border: 1px dashed var(--bs-border-color);
+  border-radius: 0.75rem;
+}

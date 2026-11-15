@@ -1,0 +1,132 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.barra {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem clamp(1rem, 3vw, 2rem);
+  color: #fff;
+  background: var(--vitalis-primario);
+}
+
+.barra__menu {
+  display: none;
+  padding: 0.1rem 0.5rem;
+  font-size: 1.25rem;
+  line-height: 1;
+  color: #fff;
+  background: transparent;
+  border: 1px solid rgb(255 255 255 / 50%);
+  border-radius: 0.4rem;
+}
+
+.barra__marca {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #fff;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.barra__logo {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.6rem;
+  font-weight: 700;
+  color: var(--vitalis-primario);
+  background: #fff;
+}
+
+.barra__usuario {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.marco {
+  display: flex;
+  flex: 1;
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  width: 220px;
+  flex-shrink: 0;
+  padding: 1.25rem 0.75rem;
+  background: #fff;
+  border-right: 1px solid var(--bs-border-color);
+
+  a {
+    padding: 0.55rem 0.85rem;
+    border-radius: 0.5rem;
+    color: var(--bs-body-color);
+    text-decoration: none;
+
+    &:hover {
+      background: var(--vitalis-fondo);
+    }
+
+    &.activo {
+      font-weight: 600;
+      color: var(--vitalis-primario);
+      background: #e6f2f1;
+    }
+  }
+}
+
+.contenido {
+  flex: 1;
+  min-width: 0;
+  max-width: 1000px;
+  padding: 2rem clamp(1rem, 4vw, 2.5rem);
+}
+
+/* Celular: el menú se oculta y se abre con ☰ encima del contenido. */
+@media (max-width: 768px) {
+  .barra__menu {
+    display: block;
+  }
+
+  .marco {
+    position: relative;
+  }
+
+  .menu {
+    position: absolute;
+    inset: 0 auto auto 0;
+    z-index: 10;
+    display: none;
+    width: 100%;
+    border-right: 0;
+    border-bottom: 1px solid var(--bs-border-color);
+    box-shadow: 0 6px 12px rgb(0 0 0 / 8%);
+  }
+
+  .menu--abierto {
+    display: flex;
+  }
+}
+
+/* Celular pequeño: solo el logo, para que quepan el rol y "Cerrar sesión". */
+@media (max-width: 480px) {
+  .barra {
+    gap: 0.6rem;
+  }
+
+  .barra__nombre {
+    display: none;
+  }
+}

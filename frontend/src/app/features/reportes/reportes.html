@@ -1,0 +1,230 @@
+<h1 class="h4 fw-bold mb-1">Reportes</h1>
+<p class="text-secondary mb-4">Ocupación de citas por especialidad y médico (R01).</p>
+
+<form class="filtros" [formGroup]="form" (ngSubmit)="consultar()" novalidate>
+  <div>
+    <label for="desde" class="form-label small">Desde</label>
+    <input
+      id="desde"
+      type="date"
+      class="form-control"
+      formControlName="desde"
+      [class.is-invalid]="form.controls.desde.invalid && form.controls.desde.touched"
+    />
+  </div>
+  <div>
+    <label for="hasta" class="form-label small">Hasta</label>
+    <input
+      id="hasta"
+      type="date"
+      class="form-control"
+      formControlName="hasta"
+      [class.is-invalid]="
+        (form.controls.hasta.invalid || form.hasError('rangoInvertido')) &&
+        form.controls.hasta.touched
+      "
+    />
+  </div>
+  <button
+    type="submit"
+    class="btn btn-vitalis filtros__btn"
+    [disabled]="estadoVista() === 'cargando'"
+  >
+    Consultar
+  </button>
+</form>
+@if (form.hasError('rangoInvertido') && form.touched) {
+  <p class="text-danger small mt-2">La fecha "hasta" no puede ser anterior a "desde".</p>
+}
+
+<div class="mt-4">
+  @switch (estadoVista()) {
+    @case ('cargando') {
+      <p class="text-secondary">
+        <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+        Generando reporte…
+      </p>
+    }
+    @case ('error') {
+      <div class="alert alert-danger d-flex flex-wrap align-items-center gap-3" role="alert">
+        <span>{{ error() }}</span>
+        <button type="button" class="btn btn-sm btn-outline-danger" (click)="consultar()">
+          Reintentar
+        </button>
+      </div>
+    }
+    @case ('listo') {
+      <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+        <p class="small text-secondary mb-0">
+          Periodo: {{ periodo() }} · Despliega una especialidad para ver sus médicos.
+        </p>
+        @if (filas().length) {
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-success"
+            (click)="exportarExcel()"
+            [disabled]="exportando()"
+          >
+            @if (exportando()) {
+              <span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
+            }
+            Exportar a Excel
+          </button>
+        }
+      </div>
+      @if (errorExportar(); as mensaje) {
+        <p class="text-danger small">{{ mensaje }}</p>
+      }
+      @if (filas().length === 0) {
+        <div class="vacio">No hay citas registradas en ese periodo.</div>
+      } @else {
+        <div class="table-responsive">
+          <table class="table table-sm align-middle bg-white mb-0">
+            <thead>
+              <tr>
+                <th scope="col">Especialidad / médico</th>
+                <th scope="col" class="text-end">Por confirmar</th>
+                <th scope="col" class="text-end">Confirmadas</th>
+                <th scope="col" class="text-end">Atendidas</th>
+                <th scope="col" class="text-end">No asistió</th>
+                <th scope="col" class="text-end">Canceladas</th>
+                <th scope="col" class="text-end">Total</th>
+                <th scope="col" class="text-end">Asistencia</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (fila of filas(); track fila.especialidad) {
+                <tr>
+                  <th scope="row" class="fw-normal">
+                    <button
+                      type="button"
+                      class="desplegar"
+                      (click)="alternar(fila.especialidad)"
+                      [attr.aria-expanded]="estaDesplegada(fila.especialidad)"
+                    >
+                      <span class="desplegar__flecha" aria-hidden="true">
+                        {{ estaDesplegada(fila.especialidad) ? '▾' : '▸' }}
+                      </span>
+                      {{ fila.especialidad }}
+                    </button>
+                  </th>
+                  <td class="text-end">{{ fila.pendientes }}</td>
+                  <td class="text-end">{{ fila.confirmadas }}</td>
+                  <td class="text-end">{{ fila.atendidas }}</td>
+                  <td class="text-end">{{ fila.noAsistio }}</td>
+                  <td class="text-end">{{ fila.canceladas }}</td>
+                  <td class="text-end fw-semibold">{{ fila.total }}</td>
+                  <td class="text-end">{{ asistencia(fila) }}</td>
+                </tr>
+
+                @if (estaDesplegada(fila.especialidad)) {
+                  @for (medico of medicosDe(fila.especialidad); track medico.idMedico) {
+                    <tr
+                      class="fila-medico"
+                      [class.fila-medico--elegido]="medicoElegido()?.idMedico === medico.idMedico"
+                    >
+                      <td>
+                        <span class="me-2">{{ medico.medico }}</span>
+                        <button
+                          type="button"
+                          class="btn btn-link btn-sm p-0 align-baseline"
+                          (click)="verCitas(medico)"
+                        >
+                          Ver citas
+                        </button>
+                      </td>
+                      <td class="text-end">{{ medico.pendientes }}</td>
+                      <td class="text-end">{{ medico.confirmadas }}</td>
+                      <td class="text-end">{{ medico.atendidas }}</td>
+                      <td class="text-end">{{ medico.noAsistio }}</td>
+                      <td class="text-end">{{ medico.canceladas }}</td>
+                      <td class="text-end">{{ medico.total }}</td>
+                      <td class="text-end">{{ asistencia(medico) }}</td>
+                    </tr>
+                  }
+                }
+              }
+            </tbody>
+            <tfoot>
+              @if (totales(); as t) {
+                <tr class="fw-semibold">
+                  <th scope="row">Total</th>
+                  <td class="text-end">{{ t.pendientes }}</td>
+                  <td class="text-end">{{ t.confirmadas }}</td>
+                  <td class="text-end">{{ t.atendidas }}</td>
+                  <td class="text-end">{{ t.noAsistio }}</td>
+                  <td class="text-end">{{ t.canceladas }}</td>
+                  <td class="text-end">{{ t.total }}</td>
+                  <td class="text-end">{{ asistencia(t) }}</td>
+                </tr>
+              }
+            </tfoot>
+          </table>
+        </div>
+      }
+    }
+  }
+</div>
+
+<!-- Nivel 3: citas del médico elegido -->
+@if (medicoElegido(); as medico) {
+  <section #panelDetalle class="card detalle mt-4" aria-live="polite">
+    <div class="card-body">
+      <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+        <div>
+          <h2 class="h6 fw-bold mb-1">Citas de {{ medico.medico }}</h2>
+          <p class="small text-secondary mb-0">{{ medico.especialidad }} · {{ periodo() }}</p>
+        </div>
+        <button type="button" class="btn btn-sm btn-outline-secondary" (click)="cerrarDetalle()">
+          Cerrar
+        </button>
+      </div>
+
+      @switch (estadoDetalle()) {
+        @case ('cargando') {
+          <p class="text-secondary small mb-0">
+            <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+            Cargando citas…
+          </p>
+        }
+        @case ('error') {
+          <p class="text-danger small mb-0">{{ errorDetalle() }}</p>
+        }
+        @case ('listo') {
+          @if (citasDetalle().length === 0) {
+            <p class="text-secondary small mb-0">El médico no tiene citas en este periodo.</p>
+          } @else {
+            <div class="table-responsive">
+              <table class="table table-sm align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th scope="col">Fecha</th>
+                    <th scope="col">Hora</th>
+                    <th scope="col">Paciente</th>
+                    <th scope="col">Estado</th>
+                    <th scope="col">Registrada por</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (cita of citasDetalle(); track cita.id) {
+                    <tr>
+                      <td>{{ fechaLarga(cita.fecha) }}</td>
+                      <td>{{ horaCorta(cita.hora) }}</td>
+                      <td>{{ cita.paciente }}</td>
+                      <td>
+                        <span class="badge {{ estado[cita.estado].clase }}">
+                          {{ estado[cita.estado].texto }}
+                        </span>
+                      </td>
+                      <td>{{ cita.canal === 'PORTAL' ? 'Portal web' : 'Recepción' }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        }
+      }
+    </div>
+  </section>
+}

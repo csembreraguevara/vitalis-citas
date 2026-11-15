@@ -1,0 +1,24 @@
+/* Estilos globales. Bootstrap 5 se carga desde angular.json. */
+:root {
+  --vitalis-primario: #0f766e;
+  --vitalis-primario-oscuro: #134e4a;
+  --vitalis-fondo: #f6f8f8;
+}
+
+body {
+  background: var(--vitalis-fondo);
+}
+
+.btn-vitalis {
+  --bs-btn-color: #fff;
+  --bs-btn-bg: var(--vitalis-primario);
+  --bs-btn-border-color: var(--vitalis-primario);
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: var(--vitalis-primario-oscuro);
+  --bs-btn-hover-border-color: var(--vitalis-primario-oscuro);
+  --bs-btn-active-bg: var(--vitalis-primario-oscuro);
+  --bs-btn-disabled-bg: var(--vitalis-primario);
+  --bs-btn-disabled-border-color: var(--vitalis-primario);
+  padding: 0.6rem 1rem;
+  font-weight: 600;
+}

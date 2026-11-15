@@ -1,0 +1,256 @@
+<h1 class="h4 fw-bold mb-1">Reservar cita</h1>
+
+@if (reserva(); as cita) {
+  <!-- Paso final: confirmar (paciente) o resultado -->
+  <div class="card resumen mt-3">
+    <div class="card-body">
+      @if (cita.estado === 'CONFIRMADA') {
+        <h2 class="h5 fw-bold text-success mb-1">✓ Cita confirmada</h2>
+        <p class="text-secondary mb-3">Te esperamos 10 minutos antes en el consultorio.</p>
+      } @else if (segundosRestantes() > 0) {
+        <h2 class="h5 fw-bold mb-1">Confirma tu cita</h2>
+        <p class="text-secondary mb-3">
+          Separamos el horario por 5 minutos. Si no confirmas, se libera para otra persona.
+        </p>
+      } @else {
+        <h2 class="h5 fw-bold text-danger mb-1">El tiempo para confirmar terminó</h2>
+        <p class="text-secondary mb-3">El horario se liberó. Elige uno nuevo.</p>
+      }
+
+      <dl class="resumen__datos">
+        @if (esRecepcion) {
+          <dt>Paciente</dt>
+          <dd>{{ cita.paciente }}</dd>
+        }
+        <dt>Especialidad</dt>
+        <dd>{{ cita.especialidad }}</dd>
+        <dt>Médico</dt>
+        <dd>{{ cita.medico }} · Consultorio {{ cita.consultorio }}</dd>
+        <dt>Fecha</dt>
+        <dd>{{ fechaLarga(cita.fecha) }}</dd>
+        <dt>Hora</dt>
+        <dd>{{ horaCorta(cita.hora) }}</dd>
+      </dl>
+
+      @if (errorEnvio(); as mensaje) {
+        <div class="alert alert-danger py-2" role="alert">{{ mensaje }}</div>
+      }
+
+      @if (cita.estado === 'CONFIRMADA') {
+        <div class="d-flex flex-wrap gap-2">
+          @if (!esRecepcion) {
+            <a routerLink="/mis-citas" class="btn btn-vitalis">Ver mis citas</a>
+          }
+          <button type="button" class="btn btn-outline-secondary" (click)="nuevaReserva()">
+            Reservar otra cita
+          </button>
+        </div>
+      } @else if (segundosRestantes() > 0) {
+        <p class="resumen__tiempo" aria-live="polite">
+          Tiempo restante: <strong>{{ tiempoRestante() }}</strong>
+        </p>
+        <div class="d-flex flex-wrap gap-2">
+          <button
+            type="button"
+            class="btn btn-vitalis"
+            (click)="confirmar()"
+            [disabled]="enviando()"
+          >
+            @if (enviando()) {
+              <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+            }
+            Confirmar cita
+          </button>
+          <button type="button" class="btn btn-outline-secondary" (click)="elegirOtroHorario()">
+            Elegir otro horario
+          </button>
+        </div>
+      } @else {
+        <button type="button" class="btn btn-vitalis" (click)="elegirOtroHorario()">
+          Elegir otro horario
+        </button>
+      }
+    </div>
+  </div>
+} @else {
+  <p class="text-secondary mb-4">Los campos marcados con * son obligatorios.</p>
+
+  @if (errorCatalogo(); as mensaje) {
+    <div class="alert alert-danger py-2" role="alert">{{ mensaje }}</div>
+  }
+
+  <form class="card" [formGroup]="form" (ngSubmit)="reservar()" novalidate>
+    <div class="card-body d-grid gap-4">
+      @if (esRecepcion) {
+        <div>
+          <label for="dni" class="form-label">DNI del paciente *</label>
+          <div class="input-group has-validation campo-corto">
+            <input
+              id="dni"
+              type="text"
+              inputmode="numeric"
+              maxlength="8"
+              class="form-control"
+              formControlName="dni"
+              [class.is-invalid]="invalido('dni') || errorPaciente()"
+              [class.is-valid]="paciente()"
+              (keydown.enter)="$event.preventDefault(); buscarPaciente()"
+            />
+            <button
+              type="button"
+              class="btn btn-outline-secondary"
+              (click)="buscarPaciente()"
+              [disabled]="buscandoPaciente()"
+            >
+              Buscar
+            </button>
+            <div class="invalid-feedback">
+              @if (errorPaciente(); as mensaje) {
+                {{ mensaje }}
+              } @else if (form.controls.dni.hasError('required')) {
+                Ingresa el DNI.
+              } @else {
+                El DNI debe tener exactamente 8 dígitos.
+              }
+            </div>
+            @if (paciente(); as encontrado) {
+              <div class="valid-feedback">{{ encontrado.nombreCompleto }}</div>
+            }
+          </div>
+        </div>
+      }
+
+      <div class="row g-3">
+        <div class="col-12 col-md-6">
+          <label for="especialidad" class="form-label">Especialidad *</label>
+          <select
+            id="especialidad"
+            class="form-select"
+            formControlName="idEspecialidad"
+            [class.is-invalid]="invalido('idEspecialidad')"
+          >
+            <option [ngValue]="null">Selecciona…</option>
+            @for (especialidad of especialidades(); track especialidad.id) {
+              <option [ngValue]="especialidad.id">{{ especialidad.nombre }}</option>
+            }
+          </select>
+          <div class="invalid-feedback">Elige una especialidad.</div>
+        </div>
+
+        <div class="col-12 col-md-6">
+          <label for="medico" class="form-label">Médico *</label>
+          <select
+            id="medico"
+            class="form-select"
+            formControlName="idMedico"
+            [class.is-invalid]="invalido('idMedico')"
+          >
+            <option [ngValue]="null">
+              @if (cargandoMedicos()) {
+                Cargando médicos…
+              } @else if (form.controls.idEspecialidad.value === null) {
+                Primero elige una especialidad
+              } @else {
+                Selecciona…
+              }
+            </option>
+            @for (medico of medicos(); track medico.id) {
+              <option [ngValue]="medico.id">{{ medico.nombreCompleto }}</option>
+            }
+          </select>
+          <div class="invalid-feedback">Elige un médico.</div>
+        </div>
+      </div>
+
+      <div>
+        <label for="fecha" class="form-label">Fecha *</label>
+        <input
+          id="fecha"
+          type="date"
+          class="form-control campo-corto"
+          formControlName="fecha"
+          [min]="fechaMinima"
+          [max]="fechaMaxima"
+          [class.is-invalid]="invalido('fecha')"
+        />
+        <div class="invalid-feedback">
+          @if (form.controls.fecha.hasError('fechaPasada')) {
+            La fecha no puede ser anterior a hoy.
+          } @else if (form.controls.fecha.hasError('fechaLejana')) {
+            Solo se reserva con un máximo de 60 días de anticipación.
+          } @else {
+            Elige una fecha.
+          }
+        </div>
+      </div>
+
+      <fieldset>
+        <legend class="form-label fs-6 mb-2">Horario *</legend>
+        @if (cargandoTurnos()) {
+          <p class="text-secondary small mb-0">
+            <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+            Buscando horarios…
+          </p>
+        } @else if (errorTurnos(); as mensaje) {
+          <p class="text-danger small mb-0">{{ mensaje }}</p>
+        } @else if (disponibilidad(); as dia) {
+          @if (dia.turnos.length === 0) {
+            <p class="text-secondary small mb-0">
+              El médico no atiende ese día. Prueba con otra fecha.
+            </p>
+          } @else {
+            <div class="turnos" role="group" aria-label="Horarios del día">
+              @for (turno of dia.turnos; track turno.hora) {
+                <button
+                  type="button"
+                  class="btn btn-sm"
+                  [class.btn-vitalis]="form.controls.hora.value === turno.hora"
+                  [class.btn-outline-secondary]="form.controls.hora.value !== turno.hora"
+                  [disabled]="!turno.disponible"
+                  [attr.aria-pressed]="form.controls.hora.value === turno.hora"
+                  (click)="elegirTurno(turno.hora)"
+                >
+                  {{ horaCorta(turno.hora) }}
+                </button>
+              }
+            </div>
+            <p class="text-secondary small mt-2 mb-0">
+              Turnos de {{ dia.duracionMin }} minutos · los apagados ya están ocupados.
+            </p>
+          }
+        } @else {
+          <p class="text-secondary small mb-0">Elige médico y fecha para ver los horarios.</p>
+        }
+        @if (invalido('hora') && disponibilidad()?.turnos?.length) {
+          <p class="text-danger small mt-2 mb-0">Elige un horario.</p>
+        }
+      </fieldset>
+
+      <div>
+        <label for="motivo" class="form-label">Motivo de la consulta (opcional)</label>
+        <textarea
+          id="motivo"
+          rows="2"
+          class="form-control"
+          formControlName="motivo"
+          [class.is-invalid]="invalido('motivo')"
+        ></textarea>
+        <div class="form-text text-end">{{ cantidadMotivo() }}/250</div>
+        <div class="invalid-feedback">Máximo 250 caracteres.</div>
+      </div>
+
+      @if (errorEnvio(); as mensaje) {
+        <div class="alert alert-danger py-2 mb-0" role="alert">{{ mensaje }}</div>
+      }
+
+      <div>
+        <button type="submit" class="btn btn-vitalis px-4" [disabled]="enviando()">
+          @if (enviando()) {
+            <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+          }
+          Reservar cita
+        </button>
+      </div>
+    </div>
+  </form>
+}

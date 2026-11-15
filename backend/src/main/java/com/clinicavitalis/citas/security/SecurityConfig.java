@@ -40,9 +40,10 @@ public class SecurityConfig {
                 .sessionManagement(sesion -> sesion.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(rutas -> rutas
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/especialidades", "/api/medicos").permitAll()
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated())
-                .exceptionHandling(errores -> errores
+                    .exceptionHandling(errores -> errores
                         .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
                 .httpBasic(basic -> basic.disable())
                 .formLogin(form -> form.disable())

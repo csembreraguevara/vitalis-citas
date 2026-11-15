@@ -1,0 +1,153 @@
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
+  <h1 class="h4 fw-bold mb-0">Mis citas</h1>
+  <a routerLink="/reservar" class="btn btn-vitalis btn-sm px-3">Reservar cita</a>
+</div>
+
+@switch (estadoVista()) {
+  @case ('cargando') {
+    <p class="text-secondary">
+      <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+      Cargando tus citas…
+    </p>
+  }
+
+  @case ('error') {
+    <div class="alert alert-danger d-flex flex-wrap align-items-center gap-3" role="alert">
+      <span>{{ errorCarga() }}</span>
+      <button type="button" class="btn btn-sm btn-outline-danger" (click)="cargar()">
+        Reintentar
+      </button>
+    </div>
+  }
+
+  @case ('listo') {
+    @if (aviso(); as mensaje) {
+      <div class="alert alert-success py-2" role="status">{{ mensaje }}</div>
+    }
+
+    @if (citas().length === 0) {
+      <div class="vacio">
+        <p class="fw-semibold mb-1">Todavía no tienes citas</p>
+        <p class="text-secondary mb-3">Cuando reserves una, aparecerá aquí.</p>
+        <a routerLink="/reservar" class="btn btn-vitalis">Reservar mi primera cita</a>
+      </div>
+    } @else {
+      <section class="mb-4">
+        <h2 class="h6 text-uppercase text-secondary mb-3">Próximas</h2>
+
+        @for (cita of proximas(); track cita.id) {
+          <article class="card cita mb-2">
+            <div class="card-body">
+              <div class="d-flex flex-wrap justify-content-between gap-2">
+                <div>
+                  <p class="fw-semibold mb-1">
+                    {{ fechaLarga(cita.fecha) }} · {{ horaCorta(cita.hora) }}
+                  </p>
+                  <p class="text-secondary mb-0">
+                    {{ cita.especialidad }} — {{ cita.medico }} · Consultorio {{ cita.consultorio }}
+                  </p>
+                </div>
+                <span class="badge align-self-start {{ estado[cita.estado].clase }}">
+                  {{ estado[cita.estado].texto }}
+                </span>
+              </div>
+
+              @if (cancelandoId() === cita.id) {
+                <div class="cancelacion mt-3">
+                  <label [for]="'motivo-' + cita.id" class="form-label small">
+                    ¿Por qué cancelas? *
+                  </label>
+                  <textarea
+                    [id]="'motivo-' + cita.id"
+                    rows="2"
+                    class="form-control form-control-sm"
+                    [formControl]="motivo"
+                    [class.is-invalid]="motivo.invalid && motivo.touched"
+                  ></textarea>
+                  <div class="invalid-feedback">
+                    @if (motivo.hasError('maxlength')) {
+                      Máximo 250 caracteres.
+                    } @else {
+                      Indica el motivo de la cancelación.
+                    }
+                  </div>
+                  @if (errorAccion(); as mensaje) {
+                    <p class="text-danger small mt-2 mb-0">{{ mensaje }}</p>
+                  }
+                  <div class="d-flex gap-2 mt-2">
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-danger"
+                      (click)="cancelar(cita)"
+                      [disabled]="enviando()"
+                    >
+                      Cancelar cita
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-secondary"
+                      (click)="cerrarCancelacion()"
+                    >
+                      Volver
+                    </button>
+                  </div>
+                </div>
+              } @else {
+                <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
+                  @if (cita.estado === 'PENDIENTE') {
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-vitalis acciones__btn"
+                      (click)="confirmar(cita)"
+                      [disabled]="enviando()"
+                    >
+                      Confirmar
+                    </button>
+                  }
+                  @if (puedeCancelar(cita)) {
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-danger"
+                      (click)="abrirCancelacion(cita)"
+                    >
+                      Cancelar
+                    </button>
+                  } @else {
+                    <span class="small text-secondary">
+                      Ya no se puede cancelar (faltan menos de 2 horas).
+                    </span>
+                  }
+                </div>
+              }
+            </div>
+          </article>
+        } @empty {
+          <p class="text-secondary">No tienes citas próximas.</p>
+        }
+
+        @if (errorAccion() && cancelandoId() === null) {
+          <p class="text-danger small">{{ errorAccion() }}</p>
+        }
+      </section>
+
+      @if (historial().length) {
+        <section>
+          <h2 class="h6 text-uppercase text-secondary mb-3">Historial</h2>
+          <ul class="list-group">
+            @for (cita of historial(); track cita.id) {
+              <li class="list-group-item d-flex flex-wrap justify-content-between gap-2">
+                <span>
+                  {{ fechaLarga(cita.fecha) }} · {{ horaCorta(cita.hora) }}
+                  <span class="text-secondary">— {{ cita.especialidad }}, {{ cita.medico }}</span>
+                </span>
+                <span class="badge align-self-center {{ estado[cita.estado].clase }}">
+                  {{ estado[cita.estado].texto }}
+                </span>
+              </li>
+            }
+          </ul>
+        </section>
+      }
+    }
+  }
+}
