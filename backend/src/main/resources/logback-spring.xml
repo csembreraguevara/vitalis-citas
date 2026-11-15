@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Logback (RNF009): bitácora en consola y en archivo con rotación diaria.
+  - logs/vitalis-citas.log          : todo el registro de la aplicación
+  - logs/vitalis-auditoria.log      : solo operaciones del negocio (citas, login, reportes)
+  Los archivos se guardan 30 días y la carpeta logs/ no se sube a GitHub.
+-->
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+
+    <property name="CARPETA" value="logs"/>
+    <property name="PATRON" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{36} - %msg%n"/>
+
+    <appender name="ARCHIVO" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${CARPETA}/vitalis-citas.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${CARPETA}/vitalis-citas.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${PATRON}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <appender name="AUDITORIA" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${CARPETA}/vitalis-auditoria.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${CARPETA}/vitalis-auditoria.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${PATRON}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- Servicios del negocio: también van al archivo de auditoría -->
+    <logger name="com.clinicavitalis.citas.service" level="INFO">
+        <appender-ref ref="AUDITORIA"/>
+    </logger>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="ARCHIVO"/>
+    </root>
+</configuration>

@@ -18,6 +18,7 @@ import com.clinicavitalis.citas.repository.PacienteRepository;
 import com.clinicavitalis.citas.repository.UsuarioRepository;
 import com.clinicavitalis.citas.service.CitaService;
 import com.clinicavitalis.citas.service.DisponibilidadService;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -108,7 +109,7 @@ public class CitaServiceImpl implements CitaService {
 
         CanalCita canal = rol == Rol.PACIENTE ? CanalCita.PORTAL : CanalCita.RECEPCION;
         Cita cita = new Cita(paciente, medico, solicitud.fecha(), solicitud.hora(), canal, usuario);
-        cita.setMotivo(solicitud.motivo());
+        cita.setMotivo(StringUtils.trimToNull(StringUtils.normalizeSpace(solicitud.motivo())));
         if (rol == Rol.PACIENTE) {
             cita.setExpiraEn(ahora.plusMinutes(MINUTOS_RESERVA));
         } else {
@@ -158,7 +159,7 @@ public class CitaServiceImpl implements CitaService {
                     + HORAS_MINIMAS_CANCELACION + " horas antes.");
         }
         try {
-            cita.cancelar(motivo);
+            cita.cancelar(StringUtils.normalizeSpace(motivo));
         } catch (IllegalStateException ex) {
             throw new ReglaNegocioException(ex.getMessage());
         }
