@@ -1,0 +1,24 @@
+:host {
+  display: block;
+  max-width: 760px;
+}
+
+.cita {
+  border-left: 4px solid var(--vitalis-primario);
+}
+
+.acciones__btn {
+  padding: 0.25rem 0.75rem; // anula el padding grande de .btn-vitalis
+}
+
+.cancelacion {
+  max-width: 460px;
+}
+
+.vacio {
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  background: #fff;
+  border: 1px dashed var(--bs-border-color);
+  border-radius: 0.75rem;
+}

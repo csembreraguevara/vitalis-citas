@@ -1,65 +1,14 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
-import { Rol, UsuarioActual } from '../../core/models/auth.models';
+import { UsuarioActual } from '../../core/models/auth.models';
+import { NOMBRE_ROL, opcionesPara } from '../../core/navegacion';
 import { AuthService } from '../../core/services/auth.service';
 
-interface Modulo {
-  titulo: string;
-  descripcion: string;
-  requisito: string;
-  roles: Rol[];
-}
-
-/** Módulos del sistema según el backlog; se habilitan en las siguientes entregas. */
-const MODULOS: Modulo[] = [
-  {
-    titulo: 'Reservar cita',
-    descripcion: 'Elige especialidad, médico y horario disponible.',
-    requisito: 'RF008 · RF009',
-    roles: ['PACIENTE', 'RECEPCIONISTA'],
-  },
-  {
-    titulo: 'Mis citas',
-    descripcion: 'Consulta, reprograma o cancela tus citas.',
-    requisito: 'RF011 · RF012',
-    roles: ['PACIENTE'],
-  },
-  {
-    titulo: 'Agenda del día',
-    descripcion: 'Citas programadas por médico y consultorio.',
-    requisito: 'RF013',
-    roles: ['RECEPCIONISTA', 'MEDICO', 'ADMIN'],
-  },
-  {
-    titulo: 'Pacientes',
-    descripcion: 'Registro y búsqueda de pacientes.',
-    requisito: 'RF004',
-    roles: ['RECEPCIONISTA', 'ADMIN'],
-  },
-  {
-    titulo: 'Médicos y horarios',
-    descripcion: 'Administración de médicos, especialidades y turnos.',
-    requisito: 'RF005 · RF006 · RF007',
-    roles: ['ADMIN'],
-  },
-  {
-    titulo: 'Reportes',
-    descripcion: 'Exportación de reportes de citas a Excel.',
-    requisito: 'RF016 · RF017',
-    roles: ['ADMIN'],
-  },
-];
-
-const NOMBRE_ROL: Record<Rol, string> = {
-  PACIENTE: 'Paciente',
-  RECEPCIONISTA: 'Recepción',
-  MEDICO: 'Médico',
-  ADMIN: 'Administrador',
-};
-
-/** Panel principal después de iniciar sesión. */
+/** Página de inicio después de iniciar sesión. La barra y el menú los pone el Shell. */
 @Component({
   selector: 'app-panel',
+  imports: [RouterLink],
   templateUrl: './panel.html',
   styleUrl: './panel.scss',
 })
@@ -70,14 +19,12 @@ export class Panel implements OnInit {
   protected readonly errorVerificacion = signal(false);
 
   protected readonly nombreRol = computed(() => {
-    const usuario = this.auth.usuario();
-    return usuario ? NOMBRE_ROL[usuario.rol] : '';
+    const rol = this.auth.usuario()?.rol;
+    return rol ? NOMBRE_ROL[rol] : '';
   });
 
-  protected readonly modulos = computed(() => {
-    const rol = this.auth.usuario()?.rol;
-    return rol ? MODULOS.filter((modulo) => modulo.roles.includes(rol)) : [];
-  });
+  /** Mismas opciones que el menú lateral, como tarjetas de acceso rápido. */
+  protected readonly opciones = computed(() => opcionesPara(this.auth.usuario()?.rol));
 
   ngOnInit(): void {
     // Llama a una ruta protegida para comprobar que el backend acepta el token.

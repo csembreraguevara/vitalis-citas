@@ -1,0 +1,49 @@
+:host {
+  display: block;
+  max-width: 720px;
+}
+
+.campo-corto {
+  max-width: 260px;
+}
+
+.turnos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+
+  .btn {
+    min-width: 4.5rem;
+    padding: 0.35rem 0.75rem; // mismo tamaño elegido o no
+  }
+
+  .btn:disabled {
+    text-decoration: line-through;
+    opacity: 0.45;
+  }
+}
+
+.resumen {
+  border-left: 4px solid var(--vitalis-primario);
+}
+
+.resumen__datos {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.35rem 1.25rem;
+  margin-bottom: 1.25rem;
+
+  dt {
+    font-weight: 500;
+    color: var(--bs-secondary-color);
+  }
+
+  dd {
+    margin: 0;
+  }
+}
+
+.resumen__tiempo {
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+}

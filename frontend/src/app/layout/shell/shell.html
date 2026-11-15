@@ -1,0 +1,57 @@
+<header class="barra">
+  <button
+    type="button"
+    class="barra__menu"
+    (click)="menuAbierto.set(!menuAbierto())"
+    [attr.aria-expanded]="menuAbierto()"
+    aria-controls="menu-principal"
+    aria-label="Abrir o cerrar el menú"
+  >
+    ☰
+  </button>
+
+  <a routerLink="/panel" class="barra__marca">
+    <span class="barra__logo" aria-hidden="true">+</span>
+    <span class="barra__nombre">Clínica Vitalis</span>
+  </a>
+
+  <div class="barra__usuario">
+    <span class="d-none d-sm-inline">{{ auth.usuario()?.username }}</span>
+    <span class="badge rounded-pill text-bg-light">{{ nombreRol() }}</span>
+    <button type="button" class="btn btn-sm btn-outline-light" (click)="auth.logout()">
+      Cerrar sesión
+    </button>
+  </div>
+</header>
+
+<div class="marco">
+  <nav
+    id="menu-principal"
+    class="menu"
+    [class.menu--abierto]="menuAbierto()"
+    aria-label="Menú principal"
+  >
+    <a
+      routerLink="/panel"
+      routerLinkActive="activo"
+      ariaCurrentWhenActive="page"
+      (click)="menuAbierto.set(false)"
+    >
+      Inicio
+    </a>
+    @for (opcion of opciones(); track opcion.ruta) {
+      <a
+        [routerLink]="opcion.ruta"
+        routerLinkActive="activo"
+        ariaCurrentWhenActive="page"
+        (click)="menuAbierto.set(false)"
+      >
+        {{ opcion.titulo }}
+      </a>
+    }
+  </nav>
+
+  <main class="contenido">
+    <router-outlet />
+  </main>
+</div>
