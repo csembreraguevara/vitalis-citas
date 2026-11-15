@@ -1,5 +1,8 @@
 HELP.md
 target/
+
+### Configuración local con contraseñas (nunca se sube) ###
+application-local.properties
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
