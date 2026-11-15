@@ -1,0 +1,159 @@
+<h1 class="h4 fw-bold mb-1">{{ esMedico ? 'Mi agenda' : 'Agenda del día' }}</h1>
+<p class="text-secondary mb-4">{{ fechaLarga(fecha()) }}</p>
+
+<div class="filtros mb-3">
+  <div class="btn-group" role="group" aria-label="Cambiar de día">
+    <button
+      type="button"
+      class="btn btn-outline-secondary"
+      (click)="moverDia(-1)"
+      aria-label="Día anterior"
+    >
+      ‹
+    </button>
+    <button
+      type="button"
+      class="btn btn-outline-secondary"
+      (click)="cambiarFecha(hoy)"
+      [disabled]="fecha() === hoy"
+    >
+      Hoy
+    </button>
+    <button
+      type="button"
+      class="btn btn-outline-secondary"
+      (click)="moverDia(1)"
+      aria-label="Día siguiente"
+    >
+      ›
+    </button>
+  </div>
+
+  <label class="visually-hidden" for="fecha">Fecha</label>
+  <input
+    id="fecha"
+    type="date"
+    class="form-control filtros__fecha"
+    [ngModel]="fecha()"
+    (ngModelChange)="cambiarFecha($event)"
+  />
+
+  @if (!esMedico) {
+    <label class="visually-hidden" for="medico">Médico</label>
+    <select
+      id="medico"
+      class="form-select filtros__medico"
+      [ngModel]="idMedico()"
+      (ngModelChange)="cambiarMedico($event)"
+    >
+      <option [ngValue]="null">Todos los médicos</option>
+      @for (medico of medicos(); track medico.id) {
+        <option [ngValue]="medico.id">
+          {{ medico.nombreCompleto }} · {{ medico.especialidad }}
+        </option>
+      }
+    </select>
+  }
+</div>
+
+@switch (estadoVista()) {
+  @case ('cargando') {
+    <p class="text-secondary">
+      <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+      Cargando agenda…
+    </p>
+  }
+  @case ('error') {
+    <div class="alert alert-danger d-flex flex-wrap align-items-center gap-3" role="alert">
+      <span>{{ error() }}</span>
+      <button type="button" class="btn btn-sm btn-outline-danger" (click)="cargar()">
+        Reintentar
+      </button>
+    </div>
+  }
+  @case ('listo') {
+    @if (citas().length === 0) {
+      <div class="vacio">No hay citas para este día.</div>
+    } @else {
+      <p class="small text-secondary mb-2">
+        {{ resumen().total }} citas · {{ resumen().pendientes }} por atender ·
+        {{ resumen().atendidas }} atendidas · {{ resumen().noAsistio }} no asistieron
+        @if (puedeRegistrar && esFutura()) {
+          · La asistencia se registra el mismo día de la cita.
+        }
+      </p>
+
+      @if (errorAccion(); as mensaje) {
+        <div class="alert alert-danger py-2" role="alert">{{ mensaje }}</div>
+      }
+
+      <div class="table-responsive">
+        <table class="table align-middle bg-white mb-0">
+          <thead>
+            <tr>
+              <th scope="col">Hora</th>
+              <th scope="col">Paciente</th>
+              @if (!esMedico) {
+                <th scope="col">Médico</th>
+              }
+              <th scope="col">Estado</th>
+              @if (puedeRegistrar) {
+                <th scope="col" class="text-end">Asistencia</th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (cita of citas(); track cita.id) {
+              <tr [class.text-secondary]="cita.estado === 'CANCELADA'">
+                <td class="fw-semibold">{{ horaCorta(cita.hora) }}</td>
+                <td>
+                  {{ cita.paciente }}
+                  @if (cita.motivo) {
+                    <div class="small text-secondary">{{ cita.motivo }}</div>
+                  }
+                </td>
+                @if (!esMedico) {
+                  <td>
+                    {{ cita.medico }}
+                    <div class="small text-secondary">
+                      {{ cita.especialidad }} · {{ cita.consultorio }}
+                    </div>
+                  </td>
+                }
+                <td>
+                  <span class="badge {{ estado[cita.estado].clase }}">{{
+                    estado[cita.estado].texto
+                  }}</span>
+                </td>
+                @if (puedeRegistrar) {
+                  <td class="text-end text-nowrap">
+                    @if (cita.estado === 'CONFIRMADA' && !esFutura()) {
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-success me-1"
+                        (click)="atendida(cita)"
+                        [disabled]="procesandoId() === cita.id"
+                      >
+                        Atendida
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-secondary"
+                        (click)="noAsistio(cita)"
+                        [disabled]="procesandoId() === cita.id"
+                      >
+                        No asistió
+                      </button>
+                    } @else {
+                      <span class="text-secondary">—</span>
+                    }
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+}
