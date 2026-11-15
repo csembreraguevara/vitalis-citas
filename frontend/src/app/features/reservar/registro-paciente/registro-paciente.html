@@ -1,0 +1,140 @@
+<section class="registro" aria-labelledby="titulo-registro">
+  <h2 id="titulo-registro" class="h6 fw-bold mb-1">Registrar paciente nuevo</h2>
+  <p class="small text-secondary mb-3">
+    DNI <strong>{{ dni() }}</strong
+    >. Al guardar, el paciente queda listo para su cita.
+  </p>
+
+  <form [formGroup]="form" (ngSubmit)="guardar()" novalidate>
+    <div class="row g-3">
+      <div class="col-12 col-md-6">
+        <label for="reg-nombres" class="form-label small">Nombres *</label>
+        <input
+          id="reg-nombres"
+          class="form-control"
+          formControlName="nombres"
+          autocomplete="off"
+          [class.is-invalid]="invalido('nombres')"
+        />
+        <div class="invalid-feedback">Ingresa los nombres.</div>
+      </div>
+      <div class="col-12 col-md-6">
+        <label for="reg-apellidos" class="form-label small">Apellidos *</label>
+        <input
+          id="reg-apellidos"
+          class="form-control"
+          formControlName="apellidos"
+          autocomplete="off"
+          [class.is-invalid]="invalido('apellidos')"
+        />
+        <div class="invalid-feedback">Ingresa los apellidos.</div>
+      </div>
+
+      <div class="col-12 col-md-6">
+        <label for="reg-nacimiento" class="form-label small">Fecha de nacimiento *</label>
+        <input
+          id="reg-nacimiento"
+          type="date"
+          class="form-control"
+          formControlName="fechaNacimiento"
+          [max]="hoy"
+          [class.is-invalid]="invalido('fechaNacimiento')"
+        />
+        <div class="invalid-feedback">
+          @if (form.controls.fechaNacimiento.hasError('futura')) {
+            La fecha no puede ser futura.
+          } @else {
+            Ingresa la fecha de nacimiento.
+          }
+        </div>
+      </div>
+      <div class="col-12 col-md-6">
+        <span class="form-label small d-block">Sexo *</span>
+        <div class="d-flex gap-3 pt-1">
+          <div class="form-check">
+            <input
+              id="reg-sexo-f"
+              class="form-check-input"
+              type="radio"
+              value="F"
+              formControlName="sexo"
+              [class.is-invalid]="invalido('sexo')"
+            />
+            <label class="form-check-label" for="reg-sexo-f">Femenino</label>
+          </div>
+          <div class="form-check">
+            <input
+              id="reg-sexo-m"
+              class="form-check-input"
+              type="radio"
+              value="M"
+              formControlName="sexo"
+              [class.is-invalid]="invalido('sexo')"
+            />
+            <label class="form-check-label" for="reg-sexo-m">Masculino</label>
+          </div>
+        </div>
+        @if (invalido('sexo')) {
+          <div class="small text-danger mt-1">Elige una opción.</div>
+        }
+      </div>
+
+      <div class="col-12 col-md-6">
+        <label for="reg-email" class="form-label small">Correo *</label>
+        <input
+          id="reg-email"
+          type="email"
+          class="form-control"
+          formControlName="email"
+          autocomplete="off"
+          [class.is-invalid]="invalido('email')"
+        />
+        <div class="invalid-feedback">
+          @if (form.controls.email.hasError('required')) {
+            Ingresa el correo: ahí le llegan las confirmaciones.
+          } @else {
+            Revisa el correo (ejemplo: nombre&#64;correo.com).
+          }
+        </div>
+      </div>
+      <div class="col-12 col-md-6">
+        <label for="reg-telefono" class="form-label small">Celular (opcional)</label>
+        <input
+          id="reg-telefono"
+          type="tel"
+          inputmode="numeric"
+          maxlength="9"
+          class="form-control"
+          formControlName="telefono"
+          [class.is-invalid]="invalido('telefono')"
+        />
+        <div class="invalid-feedback">Debe tener 9 dígitos y empezar con 9.</div>
+      </div>
+    </div>
+
+    @if (error(); as mensaje) {
+      <div class="alert alert-danger py-2 mt-3 mb-0" role="alert">
+        {{ mensaje }}
+        @if (detalles().length) {
+          <ul class="mb-0 mt-1 small">
+            @for (detalle of detalles(); track detalle) {
+              <li>{{ detalle }}</li>
+            }
+          </ul>
+        }
+      </div>
+    }
+
+    <div class="d-flex gap-2 mt-3">
+      <button type="submit" class="btn btn-vitalis btn-sm px-3" [disabled]="enviando()">
+        @if (enviando()) {
+          <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+        }
+        Guardar paciente
+      </button>
+      <button type="button" class="btn btn-outline-secondary btn-sm" (click)="cancelado.emit()">
+        Cancelar
+      </button>
+    </div>
+  </form>
+</section>

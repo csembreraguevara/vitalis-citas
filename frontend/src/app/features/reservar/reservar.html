@@ -117,6 +117,19 @@
               <div class="valid-feedback">{{ encontrado.nombreCompleto }}</div>
             }
           </div>
+          @if (pacienteNoExiste() && !mostrarRegistro()) {
+            <button type="button" class="btn btn-link btn-sm px-0 mt-1" (click)="abrirRegistro()">
+              + Registrar paciente nuevo con este DNI
+            </button>
+          }
+          @if (mostrarRegistro()) {
+            <app-registro-paciente
+              class="d-block mt-3"
+              [dni]="form.controls.dni.value"
+              (registrado)="alRegistrarPaciente($event)"
+              (cancelado)="mostrarRegistro.set(false)"
+            />
+          }
         </div>
       }
 

@@ -1,0 +1,39 @@
+:host {
+  display: block;
+  max-width: 900px;
+}
+
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.filtros__fecha {
+  width: 180px;
+}
+
+.filtros__medico {
+  width: auto;
+  min-width: 260px;
+}
+
+.table {
+  border: 1px solid var(--bs-border-color);
+
+  thead th {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--bs-secondary-color);
+  }
+}
+
+.vacio {
+  padding: 2rem 1.5rem;
+  text-align: center;
+  color: var(--bs-secondary-color);
+  background: #fff;
+  border: 1px dashed var(--bs-border-color);
+  border-radius: 0.75rem;
+}

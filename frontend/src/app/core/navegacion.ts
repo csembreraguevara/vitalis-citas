@@ -15,6 +15,13 @@ export interface OpcionMenu {
  */
 export const OPCIONES_MENU: OpcionMenu[] = [
   {
+    ruta: '/agenda',
+    titulo: 'Agenda del día',
+    descripcion: 'Citas del día por médico y registro de asistencia.',
+    requisito: 'RF013',
+    roles: ['RECEPCIONISTA', 'MEDICO', 'ADMIN'],
+  },
+  {
     ruta: '/reservar',
     titulo: 'Reservar cita',
     descripcion: 'Elige especialidad, médico y horario disponible.',

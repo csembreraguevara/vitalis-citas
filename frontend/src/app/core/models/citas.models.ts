@@ -64,3 +64,15 @@ export interface PacienteResumen {
   dni: string;
   nombreCompleto: string;
 }
+
+/** Cuerpo de POST /api/pacientes (registro por recepción, RF004). */
+export interface PacienteRequest {
+  dni: string;
+  nombres: string;
+  apellidos: string;
+  fechaNacimiento: string;
+  sexo: 'F' | 'M';
+  telefono?: string;
+  email: string;
+  direccion?: string;
+}

@@ -37,6 +37,13 @@ export const routes: Routes = [
         title: 'Mis citas · Clínica Vitalis',
       },
       {
+        path: 'agenda',
+        loadComponent: () => import('./features/agenda/agenda').then((m) => m.Agenda),
+        canActivate: [rolGuard],
+        data: { roles: ['RECEPCIONISTA', 'MEDICO', 'ADMIN'] },
+        title: 'Agenda del día · Clínica Vitalis',
+      },
+      {
         path: 'reportes',
         loadComponent: () => import('./features/reportes/reportes').then((m) => m.Reportes),
         canActivate: [rolGuard],

@@ -16,6 +16,7 @@ import {
 import { AuthService } from '../../core/services/auth.service';
 import { CatalogoService } from '../../core/services/catalogo.service';
 import { CitaService } from '../../core/services/cita.service';
+import { RegistroPaciente } from './registro-paciente/registro-paciente';
 import { fechaEnRango, fechaIso, sumarDias } from './validadores';
 
 const DIAS_MAXIMOS = 60; // RN04
@@ -27,7 +28,7 @@ const DIAS_MAXIMOS = 60; // RN04
  */
 @Component({
   selector: 'app-reservar',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, RegistroPaciente],
   templateUrl: './reservar.html',
   styleUrl: './reservar.scss',
 })
@@ -66,6 +67,9 @@ export class Reservar implements OnInit {
   protected readonly errorTurnos = signal<string | null>(null);
   protected readonly errorPaciente = signal<string | null>(null);
   protected readonly errorEnvio = signal<string | null>(null);
+  /** El DNI buscado no existe: recepción puede registrar al paciente (RF004). */
+  protected readonly pacienteNoExiste = signal(false);
+  protected readonly mostrarRegistro = signal(false);
 
   // Resultado de la reserva
   protected readonly reserva = signal<Cita | null>(null);
@@ -151,6 +155,8 @@ export class Reservar implements OnInit {
     this.form.controls.dni.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.paciente.set(null);
       this.errorPaciente.set(null);
+      this.pacienteNoExiste.set(false);
+      this.mostrarRegistro.set(false);
     });
 
     this.form.controls.motivo.valueChanges
@@ -176,8 +182,24 @@ export class Reservar implements OnInit {
       .pipe(finalize(() => this.buscandoPaciente.set(false)))
       .subscribe({
         next: (encontrado) => this.paciente.set(encontrado),
-        error: (error) => this.errorPaciente.set(mensajeDeError(error)),
+        error: (error) => {
+          this.errorPaciente.set(mensajeDeError(error));
+          this.pacienteNoExiste.set(error.status === 404);
+        },
       });
+  }
+
+  protected abrirRegistro(): void {
+    this.mostrarRegistro.set(true);
+    this.errorPaciente.set(null); // el formulario de registro ya explica qué falta
+  }
+
+  /** El componente hijo avisa que registró al paciente: queda elegido para la cita. */
+  protected alRegistrarPaciente(nuevo: PacienteResumen): void {
+    this.paciente.set(nuevo);
+    this.errorPaciente.set(null);
+    this.pacienteNoExiste.set(false);
+    this.mostrarRegistro.set(false);
   }
 
   protected elegirTurno(hora: string): void {

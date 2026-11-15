@@ -1,4 +1,7 @@
-/** Configuración del frontend. La API de Spring Boot corre en el puerto 8080. */
+/**
+ * Configuración del frontend. Las peticiones van a /api y el proxy de desarrollo
+ * (proxy.conf.js) las reenvía a la API de Spring Boot en el puerto 8080.
+ */
 export const environment = {
-  apiUrl: 'http://localhost:8080/api',
+  apiUrl: '/api',
 };
