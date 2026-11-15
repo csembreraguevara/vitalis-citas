@@ -10,4 +10,5 @@ public interface PacienteRepository extends JpaRepository<Paciente, Long> {
 
     /** Paciente dueño de una cuenta del portal. */
     Optional<Paciente> findByUsuarioUsername(String username);
+      Optional<Paciente> findByDni(String dni);
 }
