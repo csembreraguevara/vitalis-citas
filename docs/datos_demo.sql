@@ -1,5 +1,4 @@
 USE vitalis_citas;
-
 INSERT INTO paciente
     (id_usuario, dni, nombres, apellidos, fecha_nacimiento, sexo, telefono, email, direccion)
 VALUES
@@ -26,29 +25,36 @@ VALUES
     (NULL, '87420653', 'Gabriela', 'Campos Rivas', '1990-05-03', 'F', '999000023', 'gabriela.campos90@gmail.com', 'Calle Los Tulipanes 215'),
     (NULL, '23679518', 'Tomás', 'León Cabrera', '1986-08-15', 'M', '999000024', 'tomas.leon86@outlook.com', 'Av. Los Héroes 640'),
     (NULL, '68194327', 'Elena', 'Sánchez Poma', '1995-10-07', 'F', '999000025', 'elena.sanchez95@gmail.com', 'Jr. Santa Ana 180');
-    INSERT INTO cita
+
+-- Las citas relacionan al paciente por DNI para no depender de id_paciente fijos.
+-- Los IDs de médico corresponden al orden de carga del esquema inicial.
+INSERT INTO cita
     (id_paciente, id_medico, fecha, hora, estado, canal, motivo)
-VALUES
-    (8,  1, '2026-12-07', '08:00:00', 'CONFIRMADA', 'PORTAL', 'Consulta general'),
-    (9,  3, '2026-12-07', '15:00:00', 'CONFIRMADA', 'PORTAL', 'Control de salud'),
-    (10, 2, '2026-12-08', '09:00:00', 'CONFIRMADA', 'PORTAL', 'Evaluación odontológica'),
-    (11, 1, '2026-12-08', '15:00:00', 'CONFIRMADA', 'PORTAL', 'Consulta general'),
-    (12, 1, '2026-12-09', '08:00:00', 'CONFIRMADA', 'PORTAL', 'Evaluación médica'),
-    (13, 4, '2026-12-09', '15:00:00', 'CONFIRMADA', 'PORTAL', 'Consulta ginecológica'),
-    (14, 2, '2026-12-10', '09:00:00', 'CONFIRMADA', 'PORTAL', 'Control odontológico'),
-    (15, 3, '2026-12-10', '08:00:00', 'CONFIRMADA', 'PORTAL', 'Consulta pediátrica'),
-    (16, 1, '2026-12-11', '08:00:00', 'CONFIRMADA', 'PORTAL', 'Consulta general'),
-    (17, 4, '2026-12-11', '15:00:00', 'CONFIRMADA', 'PORTAL', 'Control ginecológico'),
-    (18, 1, '2026-12-14', '08:30:00', 'CONFIRMADA', 'PORTAL', 'Evaluación médica'),
-    (19, 3, '2026-12-14', '15:20:00', 'CONFIRMADA', 'PORTAL', 'Consulta pediátrica'),
-    (20, 2, '2026-12-15', '09:30:00', 'CONFIRMADA', 'PORTAL', 'Evaluación odontológica'),
-    (21, 1, '2026-12-15', '15:30:00', 'CONFIRMADA', 'PORTAL', 'Consulta general'),
-    (22, 1, '2026-12-16', '08:30:00', 'CONFIRMADA', 'PORTAL', 'Control médico'),
-    (23, 4, '2026-12-16', '15:30:00', 'CONFIRMADA', 'PORTAL', 'Consulta ginecológica'),
-    (24, 2, '2026-12-17', '09:30:00', 'CONFIRMADA', 'PORTAL', 'Control odontológico'),
-    (25, 3, '2026-12-17', '08:20:00', 'CONFIRMADA', 'PORTAL', 'Consulta pediátrica'),
-    (26, 1, '2026-12-18', '08:30:00', 'CONFIRMADA', 'PORTAL', 'Consulta general'),
-    (27, 4, '2026-12-18', '15:30:00', 'CONFIRMADA', 'PORTAL', 'Control ginecológico'),
-    (28, 1, '2026-12-21', '09:00:00', 'CONFIRMADA', 'PORTAL', 'Evaluación médica'),
-    (29, 3, '2026-12-24', '08:40:00', 'CONFIRMADA', 'PORTAL', 'Consulta pediátrica'),
-    (30, 2, '2026-12-29', '10:00:00', 'CONFIRMADA', 'PORTAL', 'Evaluación odontológica');
+SELECT p.id_paciente, r.id_medico, r.fecha, r.hora,
+       'CONFIRMADA', 'PORTAL', r.motivo
+FROM paciente AS p
+JOIN (
+    SELECT '48372916' AS dni, 1 AS id_medico, '2026-12-07' AS fecha, '08:00:00' AS hora, 'Consulta general' AS motivo
+    UNION ALL SELECT '72841503', 3, '2026-12-07', '15:00:00', 'Control de salud'
+    UNION ALL SELECT '35690274', 2, '2026-12-08', '09:00:00', 'Evaluación odontológica'
+    UNION ALL SELECT '69418320', 1, '2026-12-08', '15:00:00', 'Consulta general'
+    UNION ALL SELECT '51284739', 1, '2026-12-09', '08:00:00', 'Evaluación médica'
+    UNION ALL SELECT '83726041', 4, '2026-12-09', '15:00:00', 'Consulta ginecológica'
+    UNION ALL SELECT '26953184', 2, '2026-12-10', '09:00:00', 'Control odontológico'
+    UNION ALL SELECT '74190632', 3, '2026-12-10', '08:00:00', 'Consulta pediátrica'
+    UNION ALL SELECT '40571829', 1, '2026-12-11', '08:00:00', 'Consulta general'
+    UNION ALL SELECT '91836425', 4, '2026-12-11', '15:00:00', 'Control ginecológico'
+    UNION ALL SELECT '58302716', 1, '2026-12-14', '08:30:00', 'Evaluación médica'
+    UNION ALL SELECT '67429508', 3, '2026-12-14', '15:20:00', 'Consulta pediátrica'
+    UNION ALL SELECT '32086147', 2, '2026-12-15', '09:30:00', 'Evaluación odontológica'
+    UNION ALL SELECT '85641392', 1, '2026-12-15', '15:30:00', 'Consulta general'
+    UNION ALL SELECT '19754268', 1, '2026-12-16', '08:30:00', 'Control médico'
+    UNION ALL SELECT '46283905', 4, '2026-12-16', '15:30:00', 'Consulta ginecológica'
+    UNION ALL SELECT '73158426', 2, '2026-12-17', '09:30:00', 'Control odontológico'
+    UNION ALL SELECT '29864713', 3, '2026-12-17', '08:20:00', 'Consulta pediátrica'
+    UNION ALL SELECT '64507291', 1, '2026-12-18', '08:30:00', 'Consulta general'
+    UNION ALL SELECT '50931864', 4, '2026-12-18', '15:30:00', 'Control ginecológico'
+    UNION ALL SELECT '87420653', 1, '2026-12-21', '09:00:00', 'Evaluación médica'
+    UNION ALL SELECT '23679518', 3, '2026-12-24', '08:40:00', 'Consulta pediátrica'
+    UNION ALL SELECT '68194327', 2, '2026-12-29', '10:00:00', 'Evaluación odontológica'
+) AS r ON r.dni = p.dni;
